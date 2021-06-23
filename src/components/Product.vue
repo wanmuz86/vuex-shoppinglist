@@ -2,7 +2,7 @@
   <div>
     <p>Product component</p>
     <ul>
-        <li v-for="product in products" :key="product.id">{{product.title}} - {{product.price}} - {{product.inventory}}</li>
+        <li v-for="product in products" :key="product.id">{{product.title}} - {{product.price}} - {{product.inventory}} <button v-on:click="addProductToCart(product)">Add to Cart</button></li>
     </ul>
   </div>
 </template>
@@ -24,7 +24,8 @@ export default {
   },
   methods: {
       ...mapActions([
-          'fetchProducts'
+          'fetchProducts',
+          'addProductToCart'
       ])
   }
 }
