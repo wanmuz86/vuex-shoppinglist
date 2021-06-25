@@ -5,7 +5,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
  state: {
      products:[],
-     cart:[]
+     cart:[],
+     checkoutStatus:null
 },
  getters: {
      // Example of using map , find
@@ -26,6 +27,19 @@ export default new Vuex.Store({
         // THe zero at the end means initial value for acc.. 
         return getters.cartProducts.reduce((acc, product)=> 
         acc + product.price * product.quantity,0)
+    },
+    productIsInStock(){
+        // Function that will retrieve product as a parameter
+        return (product) =>{
+            // If product.inventory > 0 , it will return true... If not it will return false
+            return product.inventory > 0
+        }
+    },
+    checkoutStatus(state){
+        if (state.checkoutStatus != null){
+            return state.checkoutStatus ? "Succesfully checkout" : "Something went wrong";
+        }
+        return null
     }
 },
  mutations: {
@@ -37,6 +51,18 @@ export default new Vuex.Store({
              id:productId,
              quantity:1
          })
+     },
+     incrementItemQuantity(state, cartItem){
+         cartItem.quantity++;
+     },
+     decrementProductInventory(state,product){
+         product.inventory--;
+     },
+     emptyCart(state){
+         state.cart = []
+     },
+     setCheckoutStatus(state,status){
+         state.checkoutStatus = status
      }
    
  },
@@ -50,8 +76,27 @@ export default new Vuex.Store({
      })
   
  },
- addProductToCart({commit},product){
-     commit('pushProductToCart',product.id);
+ addProductToCart({state,commit},product){
+     // Find the item in the cart
+     const cartItem = state.cart.find(item=>item.id == product.id)
+     if (!cartItem){
+        commit('pushProductToCart',product.id);
+     }
+     else {
+         commit('incrementItemQuantity', cartItem);
+     }
+    commit('decrementProductInventory', product);     
+ },
+ buyProducts({state,commit}){
+     shop.buyProducts(state.cart, ()=>{
+         // Call API, if successful
+         commit('emptyCart');
+         commit('setCheckoutStatus',true);
+
+     }, ()=>{
+         // If error will go here
+         commit('setCheckoutStatus',false   );
+     })
  }
 }
 })
