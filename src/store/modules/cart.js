@@ -1,15 +1,18 @@
+import shop from '@/api/shop';
+
 export default ({
+    namespaced:true, 
     state: {
         cart: [],
         checkoutStatus: null
     },
     getters: {
         // Example of using map , find
-        cartProducts(state) {
+        cartProducts(state,getter,rootState) {
             // For each item in the cart
             return state.cart.map(cartItem => {
                 // I will look for the matching product in products state
-                const product = state.products.find(product => product.id === cartItem.id)
+                const product = rootState.product.products.find(product => product.id === cartItem.id)
                 // Then I will return the product information
                 return {
                     title: product.title,
@@ -25,7 +28,7 @@ export default ({
         },
         checkoutStatus(state) {
             if (state.checkoutStatus != null) {
-                state.checkoutStatus ? "Succesfully checkout" : "Something went wrong";
+                return state.checkoutStatus ? "Succesfully checkout" : "Something went wrong";
             }
             return null
         }
@@ -60,7 +63,7 @@ export default ({
             else {
                 commit('incrementItemQuantity', cartItem);
             }
-            commit('decrementProductInventory', product);
+            commit('product/decrementProductInventory', product,{root:true});
         },
         buyProducts({ state, commit }) {
             shop.buyProducts(state.cart, () => {
@@ -70,7 +73,7 @@ export default ({
 
             }, () => {
                 // If error will go here
-                commit.setCheckoutStatus(false);
+                commit('setCheckoutStatus', false);
             })
         }
 

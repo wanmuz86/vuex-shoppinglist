@@ -15,19 +15,21 @@ import { mapState,mapGetters,mapActions } from 'vuex'
 export default {
   name: 'ShoppingList',
   computed:{
-  ...mapState([
-    'cart'
-  ]),
-  ...mapGetters([
+  ...mapState({
+     cartProducts:state=>state.cart.cart,
+     }
+     ),
+
+  ...mapGetters('cart',[
       'cartProducts',
       'cartTotal',
       'checkoutStatus'
   ])
   },
    methods: {
-   ...mapActions([
-     'buyProducts'
-   ])
+   ...mapActions({
+     buyProducts:'cart/buyProducts'
+   })
    }
   
 }
